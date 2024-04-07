@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Main Page</title>
+</head>
+<body>
+    <h1>Welcome to the Library</h1>
+    {% if error %}
+        <div style="border: 1px solid black; background-color: red; color: black; padding: 10px;">
+            {{ error }}
+        </div>
+    {% endif %}
+    <form action="/login" method="post">
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name" required><br>
+        <label for="id">ID:</label><br>
+        <input type="text" id="id" name="id" required><br><br>
+        <input type="submit" value="Login">
+        <script src="/static/main.js"></script>
+    </form>
+</body>
+</html>

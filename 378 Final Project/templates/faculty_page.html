@@ -1,0 +1,25 @@
+<!-- templates/faculty_page.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Faculty Dashboard</title>
+</head>
+<body>
+    <h1>Welcome, Faculty Member!</h1>
+    <p>Here, you can search for books, borrow and return them, and view your borrowing history.</p>
+
+    <section>
+        <h2>Search Books</h2>
+        <form action="/search_books" method="get">
+            <input type="text" name="query" placeholder="Title, Author, Category">
+            <button type="submit">Search</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Borrowing History</h2>
+        <a href="/faculty/borrowing_history">View Your Borrowing History</a>
+    </section>
+</body>
+</html>
