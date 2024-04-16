@@ -6,21 +6,35 @@
     <title>Student Dashboard</title>
 </head>
 <body>
+    <form action="/sign_out">
+        <button type="submit">Sign out</button>
+    </form>
+
     <h1>Welcome, Student!</h1>
     <p>This is your dashboard. What would you like to do today?</p>
 
     <section>
         <h2>Search Books</h2>
         <form action="/search_books" method="get">
-            <input type="text" name="query" placeholder="Title, Author, Category">
+            <input type="text" name="query" id = "query" placeholder="Title, Author, Category">
             <button type="submit">Search</button>
         </form>
     </section>
+    <br>
     
-    <ul>
-        <li><a href="/borrowing_history">View Borrowing History</a></li>
-        <li><a href="/borrow_book">Borrow a Book</a></li>
-        <li><a href="/return_book">Return a Book</a></li>
-    </ul>
+    <section>
+        <form action="/borrowing_history">
+        <button type= "submit"> View Borrowing History</button>
+        </form>
+
+        <form action="/borrow_book">
+            <button type="submit">Borrow a Book</button>
+        </form>
+
+        <form action="/return_book">
+            <button type="submit">Return a book</button>
+        </form>
+
+
 </body>
 </html>

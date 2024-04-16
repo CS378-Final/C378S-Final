@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Overdue Books</title>
+    <style>
+     table{
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid #ddd;
+        margin-top: 20px;
+     }
+     th, td{
+        padding:12px;
+        text-align: left;
+        border-bottom: 1px solid #ddd
+
+     }
+     th{
+        background-color: #f2f2f2;
+        color: #333;
+     }
+
+     .search-section {
+        margin-top: 20px;
+        text-align:center;
+     }
+    </style>
+</head>
+<body>
+    <h1>Borrowing History</h1>
+
+    <section>
+    <h2>Generate a report to see all of your library transactions</h2>
+
+        <form action="/borrowHistory" method = "get">
+            <input type = "text" name="ID" placeholder="Student/Faculty ID" id = "ID" required>
+            <button id="show" type="submit">Generate</button>
+        </form>
+    </section>
+
+   <table>
+      <tr>
+          <th>Transaction ID</th>
+          <th>Book ID</th>
+          <th>Student/Faculty ID</th>
+          <th>Librarian ID</th>
+          <th>Borrowed Date</th>
+          <th>Returned Date</th>
+
+      </tr>
+      {% for book in results %}
+      <tr>
+          <td>{{ book[0]}}</td>
+          <td>{{ book[1]}}</td>
+          <td>{{ book[2]}}</td>
+          <td>{{ book[3]}}</td>
+          <td>{{ book[4]}}</td>
+          <td>{{book[5] }}</td>
+
+
+      </tr>
+      {% endfor %}
+  </table>
+
+
+
+  <section class="report-section">
+    <button id="backButton">Return</button>
+  </section>
+
+  <script>
+    document.getElementById("backButton").addEventListener("click", function() {
+    window.history.back();
+    });
+    </script>
+
+
+</body>
+</html>
