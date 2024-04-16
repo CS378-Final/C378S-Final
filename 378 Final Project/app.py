@@ -9,7 +9,7 @@ app.secret_key = os.urandom(24)
 
 
 # Database connection
-DATABASE = '378 Final Project/library.db'
+DATABASE = 'library.db'
 
 # Function to check user role
 def get_user_role(name, user_id):
