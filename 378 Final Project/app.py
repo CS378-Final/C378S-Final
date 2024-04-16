@@ -1,11 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime, timedelta
+
 import sqlite3
+import os
 
 app = Flask(__name__)
+app.secret_key = os.urandom(24)
+
 
 # Database connection
-DATABASE = 'library.db'
+DATABASE = '378 Final Project/library.db'
 
 # Function to check user role
 def get_user_role(name, user_id):
@@ -41,12 +45,15 @@ def login():
 
     if role == 'student':
         print("Redirecting to student page.")
+        session['student_name'] = name
         return redirect(url_for('student_page'))
     elif role == 'faculty':
         print("Redirecting to faculty page.")
+        session['faculty_name'] = name
         return redirect(url_for('faculty_page'))
     elif role == 'librarian':
         print("Redirecting to librarian page.")
+        session['librarian_name'] = name
         return redirect(url_for('librarian_page'))
     else:
         print("User not found!")
@@ -55,15 +62,18 @@ def login():
 # View functions for each role
 @app.route('/student')
 def student_page():
-    return render_template('student_page.html')
+    student_name = session.get('student_name', 'Default Name')
+    return render_template('student_page.html', name=student_name)
 
 @app.route('/faculty')
 def faculty_page():
-    return render_template('faculty_page.html')
+    faculty_name = session.get('faculty_name', 'Default Name')
+    return render_template('faculty_page.html', name=faculty_name)
 
 @app.route('/librarian')
 def librarian_page():
-    return render_template('librarian_page.html')
+    librarian_name = session.get('librarian_name', 'Default Name')
+    return render_template('librarian_page.html', name=librarian_name)
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
