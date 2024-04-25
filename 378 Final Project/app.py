@@ -16,19 +16,21 @@ def get_user_role(name, user_id):
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     # Check if user is a student
-    cur.execute('SELECT * FROM Students WHERE Name = ? AND Student_ID = ?', (name, user_id))
-    if cur.fetchone():
-        return 'student'
-    # Check if user is faculty
-    cur.execute('SELECT * FROM Faculty WHERE Name = ? AND Faculty_ID = ?', (name, user_id))
-    if cur.fetchone():
-        return 'faculty'
+    cur.execute('SELECT * FROM Users WHERE Name = ? AND User_ID = ?', (name, user_id))
+    check = cur.fetchone()
+    if check:
+        return ['user', check[2]]
     # Check if user is a librarian
     cur.execute('SELECT * FROM Librarians WHERE Name = ? AND Librarian_ID = ?', (name, user_id))
     if cur.fetchone():
-        return 'librarian'
+        return ['librarian']
+    # Check if user is a manager
+    cur.execute('SELECT * FROM Managers WHERE Name = ? AND Manager_ID = ?', (name, user_id))
+    check = cur.fetchone()
+    if check:
+        return ['manager']
     conn.close()
-    return 'unknown'
+    return ['unknown']
 
 @app.route('/')
 def main_page():
@@ -40,40 +42,44 @@ def login():
     user_id = request.form['id']
     print("Login Attempt:", name, user_id)  # Check the terminal for this output after login attempt
 
-    role = get_user_role(name,user_id)
+    ret = get_user_role(name,user_id)
+    role = ret[0]
     print("Determined Role:", role)  # This should show what role has been determined
 
-    if role == 'student':
-        print("Redirecting to student page.")
-        session['student_name'] = name
-        return redirect(url_for('student_page'))
-    elif role == 'faculty':
-        print("Redirecting to faculty page.")
-        session['faculty_name'] = name
-        return redirect(url_for('faculty_page'))
+    if role == 'user':
+        print("Redirecting to user page.")
+        session['user_name'] = name
+        if ret[1] == "Faculty":
+            session['user_name'] = "Prof. " + name
+        return redirect(url_for('user_page'))
     elif role == 'librarian':
         print("Redirecting to librarian page.")
         session['librarian_name'] = name
         return redirect(url_for('librarian_page'))
+    elif role == 'manager':
+        print("Redirecting to manager page.")
+        session['manager_name'] = name
+        return redirect(url_for('manager_page'))
     else:
         print("User not found!")
         return render_template('main_page.html', error="User not found!")
     
 # View functions for each role
-@app.route('/student')
-def student_page():
-    student_name = session.get('student_name', 'Default Name')
-    return render_template('student_page.html', name=student_name)
 
-@app.route('/faculty')
-def faculty_page():
-    faculty_name = session.get('faculty_name', 'Default Name')
-    return render_template('faculty_page.html', name=faculty_name)
+@app.route('/user')
+def user_page():
+    user_name = session.get('user_name', 'Default Name')
+    return render_template('user_page.html', name=user_name)
 
 @app.route('/librarian')
 def librarian_page():
     librarian_name = session.get('librarian_name', 'Default Name')
     return render_template('librarian_page.html', name=librarian_name)
+
+@app.route('/manager')
+def manager_page():
+    manager_name = session.get('manager_name', 'Default Name')
+    return render_template('manager_page.html', name=manager_name)
 
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -136,6 +142,10 @@ def redirect_borrow_book():
 def redirect_return_book():
     return render_template('return.html')
 
+@app.route('/requests')
+def redirect_requests():
+    return render_template('requests.html')
+
 
 @app.route('/availabilityType', methods=['GET'])
 def report_book_availability():
@@ -149,6 +159,20 @@ def report_book_availability():
     results = cur.fetchall()
     conn.close
     return render_template('availability.html', results=results)
+
+
+@app.route('/transactionType', methods=['GET'])
+def report_requests():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    choice = request.args.get('output')
+    if choice == 'Return' or choice == 'Borrow':
+     cur.execute('SELECT * FROM Requests WHERE Transaction_Kind = ?', (choice,))
+    else:
+     cur.execute('SELECT * FROM Requests')
+    results = cur.fetchall()
+    conn.close
+    return render_template('requests.html', results=results)
 
 @app.route('/borrowTrends', methods = ['GET'])
 def report_book_trend():
@@ -197,7 +221,7 @@ def borrow_History():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     id = request.args.get('ID')
-    cur.execute('SELECT * FROM Transactions WHERE Student_Faculty_ID = ?', id)
+    cur.execute('SELECT * FROM Transactions WHERE User_ID = ?', (id,))
     results = cur.fetchall()
     conn.close()
     return render_template('borrowhistory.html', results=results)
@@ -207,10 +231,8 @@ def borrow():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     bookID = request.form.get('BookID')
-    id = request.form.get("ID")
-    librarian_id = request.form.get("Librarian_ID")
-    cur.execute('INSERT INTO Transactions (Book_ID, Student_Faculty_ID, Librarian_ID, Borrowed_Date, Returned_Date) VALUES (?,?,?,?,?)', (bookID,id,librarian_id, datetime.now(), ""))
-    cur.execute('UPDATE Books SET Availability = "No" WHERE BookID = ?', (bookID))
+    id = request.form.get("User_ID")
+    cur.execute('INSERT INTO Requests (Book_ID, Transaction_Kind, User_ID) VALUES (?,?,?)', (bookID,"Borrow",id))
     conn.commit()
     conn.close()
     return render_template('borrow.html')
@@ -219,21 +241,42 @@ def borrow():
 def return_books():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    try:
-        transaction_id = request.form.get('Transaction_ID')
-        cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Transaction_ID = ?', (datetime.now(), transaction_id))
-        cur.execute('SELECT Book_ID From Transactions WHERE Transaction_ID = ?', (transaction_id))
-        if book_id:
-            book_id = cur.fetchone()[0]
-            cur.execute('UPDATE Books SET Availability = "Yes" WHERE BookID = ?', (book_id))
-            conn.commit()
-            return render_template('return.html')
-        else:
-            return "Transaction not found"
-    except Exception as e:
-        return str(e)
-    finally:
-        conn.close()
+    query = request.form.get("query")
+    id = request.form.get("User_ID")
+    cur.execute('SELECT * FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID WHERE User_ID = ? AND (Returned_Date = "") AND  (Title LIKE ? OR Authors LIKE ? OR Category LIKE ?) ', (id, f"%{query}%", f"%{query}%", f"%{query}%"))
+    book = cur.fetchone()
+    cur.execute('INSERT INTO Requests (Book_ID, Transaction_Kind, User_ID) VALUES (?,?,?)', (book[1],"Return",book[2]))
+    
+    conn.commit()
+    conn.close()
+    return render_template('return.html')
+
+
+@app.route('/register', methods = ['POST'])
+def register_users():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    query = request.form.get("query")
+
+
+
+
+@app.route('/decision', methods = ['POST'])
+def approve_requests():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    selected_values = request.form.get('result')
+    for row_index, choice in enumerate(selected_values.split(',')):
+        if choice == 'deny':
+            request_id = request.form.get(f'request_{row_index}')
+            user_id = request.form.get(f'user_{row_index}')
+            book_id = request .form.get(f'book_{row_index}')
+            cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND User_ID = ? AND Book_ID = ?', (request_id, user_id, book_id))
+
+
+    conn.commit()
+    conn.close()
+    return render_template('requests.html')
         
     
 

@@ -52,15 +52,10 @@
         {% endfor %}
     </table>
 
-   <section class="search-section">
-        <button id="backButton">Search again</button>
-   </section>
+   <form action="/user">
+    <button type="submit">Return</button>
+    </form>
 
-   <script>
-    document.getElementById("backButton").addEventListener("click", function() {
-        window.history.back();
-    });
-</script>
 
 </body>
 </html>

@@ -34,21 +34,18 @@
     <h2>Here you can return a book by inputting your information below</h2>
 
         <form action="/return" method = "post">
-            <input type="text" name="Transaction_ID" placeholder="The Transaction Number" id = 'Transaction_ID' required>
+            <input type="text" name="query" id = "query" placeholder="Title, Author, Category" required>
+            <input type="text" name="User_ID" placeholder="Your ID" id = 'User_ID' required>
             <button id="show" type="submit">Generate</button>
         </form>
     </section>
 
-    <section class="report-section">
-        <button id="backButton">Return</button>
-      </section>
 
-  <script>
-    document.getElementById("backButton").addEventListener("click", function() {
-    window.history.back();
-    });
-    </script>
-
+    <form action="/user">
+    <button type="submit">Return</button>
+    </form>
 
 </body>
 </html>
+
+

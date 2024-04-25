@@ -35,21 +35,14 @@
 
         <form action="/borrow" method = "post">
             <input type = "text" name="BookID" placeholder="Book ID" id = "BookID" required>
-            <input type="text" name="ID" placeholder="Your ID" id = 'ID' required>
-            <input type="text" name="Librarian_ID" placeholder="Librarian ID" id = 'Librarian_ID' required>
+            <input type="text" name="User_ID" placeholder="Your ID" id = 'User_ID' required>
             <button id="show" type="submit">Generate</button>
         </form>
     </section>
 
-    <section class="report-section">
-        <button id="backButton">Return</button>
-      </section>
-
-  <script>
-    document.getElementById("backButton").addEventListener("click", function() {
-    window.history.back();
-    });
-    </script>
+    <form action="/user">
+    <button type="submit">Return</button>
+    </form>
 
 
 </body>
