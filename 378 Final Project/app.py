@@ -146,6 +146,10 @@ def redirect_return_book():
 def redirect_requests():
     return render_template('requests.html')
 
+@app.route("/user_rep")
+def redirect_request():
+    return render_template('users_report.html')
+
 
 @app.route('/availabilityType', methods=['GET'])
 def report_book_availability():
@@ -256,7 +260,28 @@ def return_books():
 def register_users():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    query = request.form.get("query")
+    name = request.form.get("name")
+    email = request.form.get("email")
+    department = request.form.get("department")
+    role = request.form.get("role")
+    if role == "Student":
+        cur.execute("INSERT INTO Users (Name, Role)  VALUES(?,?)", (name, role))
+        cur.execute("INSERT INTO Students (Name, Email, Department) VALUES(?,?, ?)", (name, email, department))
+    elif role == "Faculty":
+        cur.execute("INSERT INTO Users (Name, Role) VALUES(?,?)", (name, role))
+        cur.execute("INSERT INTO Faculty (Name, Email, Department) VALUES(?,?, ?)", (name, email, department))
+    elif role == "Librarian":
+        cur.execute("INSERT INTO Librarians (Name, Email) VALUES(?,?)", (name, email))
+    elif role == "Manager":
+        cur.execute("INSERT INTO Managers (Name, Email) VALUES(?,?)", (name, email))
+    else:
+        print("Not a valid role!")
+    conn.commit()
+    conn.close()
+    return render_template('manager_page.html',  error="Invalid Role! Must be Faculty, Librarian, Manager or Student ")
+
+    
+
 
 
 
@@ -279,8 +304,21 @@ def approve_requests():
     return render_template('requests.html')
         
     
-
-
+#To check if register is working 
+@app.route('/user_report', methods=['GET'])
+def report_users():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    choice = request.args.get('output')
+    if choice == 'Faculty':
+     cur.execute('SELECT * FROM Users WHERE Role = ?', ('Faculty',))
+    elif choice == 'Student':
+        cur.execute('SELECT * FROM Users WHERE Role = ?', ('Student',))
+    else:
+        cur.execute('SELECT * FROM Users' )
+    results = cur.fetchall()
+    conn.close
+    return render_template('users_report.html', results=results)
 
 
 

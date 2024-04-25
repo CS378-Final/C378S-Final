@@ -27,7 +27,7 @@
 
     <section>
         <h2>Register new users</h2>
-        <form action = "/register">
+        <form action = "/register" method="post">
             <input type="text" name="name" placeholder="Name" id = 'name' required>
             <input type="text" name="email" placeholder="Email" id = 'email' required>
             <input type="text" name="department" placeholder="Department" id = 'department'>
@@ -40,7 +40,7 @@
     </section>
 
 
-    
+
 
     <section>
         <h2>Update Information</h2>
@@ -67,6 +67,10 @@
 
         <form action="/overdue_books">
             <button type="submit">Overdue Books</button>
+        </form>
+
+        <form action="/user_rep">
+            <button type="submit">Library Users</button>
         </form>
 
         <form action = "/borrowing_trends">
