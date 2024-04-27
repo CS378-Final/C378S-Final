@@ -114,6 +114,9 @@ def search():
     return render_template('search_results.html', results=results)
 
 
+
+
+
 #Routes to the different pages
 @app.route('/update_book')
 def redirect_update():
@@ -138,6 +141,10 @@ def sign_out():
 @app.route('/borrowing_history')
 def redirect_borrowHistory():
     return render_template('borrowhistory.html')
+
+@app.route('/borrow_book')
+def redirect_borrow_book():
+    return render_template('borrow.html')
 
 @app.route('/return_book')
 def redirect_return_book():
@@ -317,6 +324,18 @@ def report_users():
     results = cur.fetchall()
     conn.close
     return render_template('users_report.html', results=results)
+
+@app.route('/redirect_previous', methods=['GET'])
+def redirect_to_previous():
+    user_id = session.get('user_id')
+    user_name = session.get('user_name')
+    ret = get_user_role(user_name,user_id)
+    if ret[0] == 'user':
+        return user_page()
+    elif ret[0] == 'librarian':
+        return librarian_page()
+    elif ret[0] == 'manager':
+        return manager_page()
 
 
 
