@@ -245,19 +245,13 @@ def borrow():
 def return_books():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    transaction_id = request.form['transaction_id']
+    transaction_id = request.form.get('transaction_id')
     session_user_id = session.get('id') 
-
-    cur.execute('SELECT User_ID FROM Transactions WHERE Transaction_ID = ?', (transaction_id,))
-    transaction_user_id = cur.fetchone()[0]
-
-    if session_user_id == transaction_user_id:
-        cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Transaction_ID = ?', (datetime.now(), transaction_id))
-        cur.execute('SELECT Book_ID FROM Transactions WHERE Transaction_ID = ?', (transaction_id,))
-        book_id = cur.fetchone()[0]
-        cur.execute('UPDATE Books SET Availability = "Yes" WHERE BookID = ?', (book_id,))
-        conn.commit()
-
+    cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Transaction_ID = ? AND User_ID = ?', (datetime.now().date(), transaction_id, session_user_id))
+    cur.execute('SELECT Book_ID FROM Transactions WHERE Transaction_ID = ?', (transaction_id,))
+    book_id = cur.fetchone()[0]
+    cur.execute('UPDATE Books SET Availability = "Yes" WHERE BookID = ?', (book_id,))
+    conn.commit()
     conn.close()
     return render_template('user_page.html')
 
