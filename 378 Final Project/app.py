@@ -39,26 +39,29 @@ def main_page():
 @app.route('/login', methods=['POST'])
 def login():
     name = request.form['name']
-    user_id = request.form['id']
-    print("Login Attempt:", name, user_id)  # Check the terminal for this output after login attempt
+    id = request.form['id']
+    print("Login Attempt:", name, id)  # Check the terminal for this output after login attempt
 
-    ret = get_user_role(name,user_id)
+    ret = get_user_role(name,id)
     role = ret[0]
     print("Determined Role:", role)  # This should show what role has been determined
 
     if role == 'user':
         print("Redirecting to user page.")
         session['user_name'] = name
+        session['user_id'] = id
         if ret[1] == "Faculty":
             session['user_name'] = "Prof. " + name
         return redirect(url_for('user_page'))
     elif role == 'librarian':
         print("Redirecting to librarian page.")
         session['librarian_name'] = name
+        session['librarian_id'] = id
         return redirect(url_for('librarian_page'))
     elif role == 'manager':
         print("Redirecting to manager page.")
         session['manager_name'] = name
+        session['manager_id'] = id
         return redirect(url_for('manager_page'))
     else:
         print("User not found!")
@@ -69,18 +72,20 @@ def login():
 @app.route('/user')
 def user_page():
     user_name = session.get('user_name', 'Default Name')
-    return render_template('user_page.html', name=user_name)
+    user_id = session.get('user_id', 'Default ID')
+    return render_template('user_page.html', name=user_name, id=user_id)
 
 @app.route('/librarian')
 def librarian_page():
     librarian_name = session.get('librarian_name', 'Default Name')
-    return render_template('librarian_page.html', name=librarian_name)
+    librarian_id = session.get('librarian_id', 'Default ID')
+    return render_template('librarian_page.html', name=librarian_name, id=librarian_id)
 
 @app.route('/manager')
 def manager_page():
     manager_name = session.get('manager_name', 'Default Name')
-    return render_template('manager_page.html', name=manager_name)
-
+    manager_id = session.get('manager_id', 'Default ID')
+    return render_template('manager_page.html', name=manager_name, id=manager_id)
 @app.route('/add_book', methods=['POST'])
 def add_book():
     conn = sqlite3.connect(DATABASE)
@@ -235,11 +240,11 @@ def borrow():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     bookID = request.form.get('BookID')
-    id = request.form.get("User_ID")
-    cur.execute('INSERT INTO Requests (Book_ID, Transaction_Kind, User_ID) VALUES (?,?,?)', (bookID,"Borrow",id))
+    user_id = session.get('user_id')
+    cur.execute('INSERT INTO Requests (Book_ID, Transaction_Kind, User_ID) VALUES (?,?,?)', (bookID,"Borrow",user_id))
     conn.commit()
     conn.close()
-    return render_template('borrow.html')
+    return render_template('user_page.html')
 
 @app.route('/return', methods = ['POST'])
 def return_books():
