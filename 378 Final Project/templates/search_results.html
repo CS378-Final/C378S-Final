@@ -38,6 +38,7 @@
             <th>Year</th>
             <th>Category</th>
             <th>Availability</th>
+            <th>Borrow</th>
         </tr>
         {% for book in results %}
         <tr>
@@ -48,6 +49,16 @@
             <td>{{ book[4]}}</td>
             <td>{{ book[5]}}</td>
             <td>{{ book[6]}}</td>
+            <td>
+                <form action="/borrow" method="post">
+                    <input type="hidden" name="BookID" value="{{ book[0] }}">
+                    {% if book[6] == 'Yes' %}
+                        <button type="submit">Borrow</button>
+                    {% else %}
+                        <button disabled="disabled">Unavailable</button>
+                    {% endif %}
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </table>
