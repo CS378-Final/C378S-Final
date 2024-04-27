@@ -225,8 +225,8 @@ def update_book():
 def borrow_History():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    id = request.args.get('ID')
-    cur.execute('SELECT * FROM Transactions WHERE User_ID = ?', (id,))
+    user_id = session.get('user_id')
+    cur.execute('SELECT * FROM Transactions WHERE User_ID = ?', (user_id,))
     results = cur.fetchall()
     conn.close()
     return render_template('borrowhistory.html', results=results)
@@ -247,10 +247,10 @@ def return_books():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     query = request.form.get("query")
-    id = request.form.get("User_ID")
-    cur.execute('SELECT * FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID WHERE User_ID = ? AND (Returned_Date = "" OR Returned_DATE IS NULL) AND  (Title LIKE ? OR Authors LIKE ? OR Category LIKE ?) ', (id, f"%{query}%", f"%{query}%", f"%{query}%"))
+    user_id = session.get('user_id')
+    cur.execute('SELECT * FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID WHERE User_ID = ? AND (Returned_Date = "" OR Returned_DATE IS NULL) AND  (Title LIKE ? OR Authors LIKE ? OR Category LIKE ?) ', (user_id, f"%{query}%", f"%{query}%", f"%{query}%"))
     book = cur.fetchone()
-    cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Book_ID = ? AND User_ID = ? AND (Returned_Date = "" OR Returned_Date IS NULL)', (datetime.now().date(),book[1],id ))
+    cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Book_ID = ? AND User_ID = ? AND (Returned_Date = "" OR Returned_Date IS NULL)', (datetime.now().date(),book[1],user_id))
     cur.execute('UPDATE Books SET Availability = ? WHERE BookID = ?', ("Yes", book[1]))
     conn.commit()
     conn.close()
@@ -281,10 +281,6 @@ def register_users():
     conn.commit()
     conn.close()
     return render_template('manager_page.html',  error="Invalid Role! Must be Faculty, Librarian, Manager or Student ")
-
-    
-
-
 
 
 
