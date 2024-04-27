@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, send_from_directory, abort
 from datetime import datetime, timedelta
 
 import sqlite3
@@ -336,9 +336,12 @@ def redirect_to_previous():
     elif role == 'manager':
         return redirect(url_for('manager_page'))
 
-
-
-
+@app.route('/download_database')
+def download_database():
+    current_date = datetime.now().strftime('%Y%m%d') 
+    directory = os.path.dirname(os.path.abspath(DATABASE)) 
+    filename = os.path.basename(DATABASE)
+    return send_from_directory(directory, filename, as_attachment=True, download_name=f"library_backup_{current_date}.db")
 
 if __name__ == '__main__':
     app.run(debug=True)
