@@ -325,17 +325,19 @@ def report_users():
     conn.close
     return render_template('users_report.html', results=results)
 
-@app.route('/redirect_previous', methods=['GET'])
+@app.route('/previous', methods=['GET'])
 def redirect_to_previous():
     user_id = session.get('user_id')
     user_name = session.get('user_name')
     ret = get_user_role(user_name,user_id)
-    if ret[0] == 'user':
-        return user_page()
-    elif ret[0] == 'librarian':
-        return librarian_page()
-    elif ret[0] == 'manager':
-        return manager_page()
+    role = ret[0]
+    if role == 'user':
+       return redirect(url_for('user_page'))
+    elif role == 'librarian':
+       return redirect(url_for('librarian_page'))
+    elif role == 'manager':
+        return redirect(url_for('manager_page'))
+
 
 
 
