@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 from datetime import datetime, timedelta
-
+import json
 import sqlite3
 import os
 
@@ -287,15 +287,22 @@ def register_users():
 def approve_requests():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    selected_values = request.form.get('result')
-    for row_index, choice in enumerate(selected_values.split(',')):
-        if choice == 'deny':
-            request_id = request.form.get(f'request_{row_index}')
-            user_id = request.form.get(f'user_{row_index}')
-            book_id = request .form.get(f'book_{row_index}')
-            cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND User_ID = ? AND Book_ID = ?', (request_id, user_id, book_id))
+    librarian_id = request.form.get('Librarian_ID')
+    result_json = request.form.get('result')
+    results = json.loads(result_json)
+    approved = results[0]
+    denied = results[1]
 
+    for req in denied:
+        request_id, user_id, book_id = req
+        cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND User_ID = ? AND Book_ID = ?', (request_id, user_id, book_id))
+    
+    for req in approved:
+        request_id, user_id, book_id = req
+        cur.execute('INSERT INTO Transactions (Book_ID, User_ID, Librarian_ID, Borrowed_Date) VALUES(?, ?, ?, ?)', (book_id, user_id, librarian_id, datetime.now().date()) )
+        cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND User_ID = ? AND Book_ID = ?', (request_id, user_id, book_id))
 
+    
     conn.commit()
     conn.close()
     return render_template('requests.html')

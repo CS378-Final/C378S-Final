@@ -60,7 +60,6 @@
           <th>Request_ID</th>
           <th>User ID</th>
           <th>Book ID</th>
-          <th>Transaction Kind</th>
           <th>Select</th>
       </tr>
       {% for book in results %}
@@ -68,29 +67,42 @@
           <td>{{ book[0]}}</td>
           <td>{{ book[2]}}</td>
           <td>{{ book[3]}}</td>
-          <td>{{ book[1]}}</td>
-          <td><select id="decision_{{loop.index}}">
+          <td><select class="decision">
             <option value ="pending">Pending</option>
             <option value="approve">Approve</option>
             <option value="deny">Deny</option>  
+         </select></td>
       </tr>
       {% endfor %}
   </table>
   <input type = "text" name="Librarian_ID" placeholder="Librarian ID" id = "Librarian_ID" required>
-  <button type="submit">Submit</button>
+  <button type="submit" onclick = "getValues()">Submit</button>
   <p class = "result"></p>
   <input type="hidden" id="decided" name="result" value="">
 </form> 
 
 <script type="text/javascript">
     function getValues(){
-       var selectElement = document.querySelectorAll('select');
+       var selectElements = document.querySelectorAll('.decision');
        var result = [];
+       var approved = [];
+       var denied = [];
        selectElements.forEach(function(selectElement){
-            result.push(selectElement.value);
-       })
-       document.querySelector('.result').textContent= "Selected value:" + result(", ");
-       document.getElementById('decided').value = result.join(', ');
+         var selectedOption = selectElement.value;
+            var row = selectElement.closest('tr')
+            var requestID = row.querySelector('td:first-child').textContent;
+            var userID = row.querySelector('td:nth-child(2)').textContent;
+            var bookID = row.querySelector('td:nth-child(3)').textContent;
+            if (selectedOption === "approve"){
+               approved.push([requestID, userID, bookID]);}
+            else if (selectedOption === "deny"){
+               denied.push([requestID, userID, bookID])
+            }
+         });
+       result.push(approved);
+       result.push(denied);
+       document.querySelector('.result').textContent= "Selected value:" + JSON.stringify(result);
+       document.getElementById('decided').value = JSON.stringify(result);
     }
    </script>
 
