@@ -139,10 +139,6 @@ def sign_out():
 def redirect_borrowHistory():
     return render_template('borrowhistory.html')
 
-@app.route('/borrow_book')
-def redirect_borrow_book():
-    return render_template('borrow.html')
-
 @app.route('/return_book')
 def redirect_return_book():
     return render_template('return.html')
