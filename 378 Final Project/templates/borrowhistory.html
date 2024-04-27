@@ -38,29 +38,33 @@
         </form>
     </section>
 
-   <table>
-      <tr>
-          <th>Transaction ID</th>
-          <th>Book ID</th>
-          <th>Student/Faculty ID</th>
-          <th>Librarian ID</th>
-          <th>Borrowed Date</th>
-          <th>Returned Date</th>
-
-      </tr>
-      {% for book in results %}
-      <tr>
-          <td>{{ book[0]}}</td>
-          <td>{{ book[1]}}</td>
-          <td>{{ book[2]}}</td>
-          <td>{{ book[3]}}</td>
-          <td>{{ book[4]}}</td>
-          <td>{{book[5] }}</td>
-
-
-      </tr>
-      {% endfor %}
-  </table>
+    <table>
+        <tr>
+            <th>Transaction ID</th>
+            <th>Book ID</th>
+            <th>Student/Faculty ID</th>
+            <th>Librarian ID</th>
+            <th>Borrowed Date</th>
+            <th>Returned Date</th>
+            <th>Return</th>
+        </tr>
+        {% for book in results %}
+        <tr>
+            <td>{{ book[0] }}</td>
+            <td>{{ book[1] }}</td>
+            <td>{{ book[2] }}</td>
+            <td>{{ book[3] }}</td>
+            <td>{{ book[4] }}</td>
+            <td>{{ book[5] or NULL }}</td>
+            <td>
+                <form action="/return" method="post">
+                    <input type="hidden" name="transaction_id" value="{{ book[0] }}">
+                    <button type="submit" {{ 'disabled' if book[5] }}>Return</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </table>    
 
 
   <form action="/user">
