@@ -142,14 +142,6 @@ def sign_out():
 def redirect_borrowHistory():
     return render_template('borrowhistory.html')
 
-@app.route('/borrow_book')
-def redirect_borrow_book():
-    return render_template('borrow.html')
-
-@app.route('/return_book')
-def redirect_return_book():
-    return render_template('return.html')
-
 @app.route('/requests')
 def redirect_requests():
     return render_template('requests.html')
@@ -249,19 +241,25 @@ def borrow():
     conn.close()
     return render_template('user_page.html')
 
-@app.route('/return', methods = ['POST'])
+@app.route('/return', methods=['POST'])
 def return_books():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    query = request.form.get("query")
-    user_id = session.get('user_id')
-    cur.execute('SELECT * FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID WHERE User_ID = ? AND (Returned_Date = "" OR Returned_DATE IS NULL) AND  (Title LIKE ? OR Authors LIKE ? OR Category LIKE ?) ', (user_id, f"%{query}%", f"%{query}%", f"%{query}%"))
-    book = cur.fetchone()
-    cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Book_ID = ? AND User_ID = ? AND (Returned_Date = "" OR Returned_Date IS NULL)', (datetime.now().date(),book[1],user_id))
-    cur.execute('UPDATE Books SET Availability = ? WHERE BookID = ?', ("Yes", book[1]))
-    conn.commit()
+    transaction_id = request.form['transaction_id']
+    session_user_id = session.get('user_id') 
+
+    cur.execute('SELECT User_ID FROM Transactions WHERE Transaction_ID = ?', (transaction_id,))
+    transaction_user_id = cur.fetchone()[0]
+
+    if session_user_id == transaction_user_id:
+        cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Transaction_ID = ?', (datetime.now(), transaction_id))
+        cur.execute('SELECT Book_ID FROM Transactions WHERE Transaction_ID = ?', (transaction_id,))
+        book_id = cur.fetchone()[0]
+        cur.execute('UPDATE Books SET Availability = "Yes" WHERE BookID = ?', (book_id,))
+        conn.commit()
+
     conn.close()
-    return render_template('return.html')
+    return render_template('user_page.html')
 
 
 
