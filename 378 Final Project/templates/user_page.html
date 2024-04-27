@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Dashboard</title>
+    <link rel="stylesheet" href="../static/css/user_page.css">
 </head>
 <body>
-    <form action="/sign_out">
+    <form action="/sign_out" class="sign-out-form">
         <button type="submit">Sign out</button>
     </form>
+    
 
     <h1>Welcome, {{ name }}!</h1>
     <p>This is your dashboard. What would you like to do today?</p>
