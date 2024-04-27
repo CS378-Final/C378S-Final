@@ -59,14 +59,16 @@
       <tr>
           <th>Request_ID</th>
           <th>User ID</th>
+          <th>Book Name</th>
           <th>Book ID</th>
           <th>Select</th>
       </tr>
       {% for book in results %}
       <tr>
           <td>{{ book[0]}}</td>
-          <td>{{ book[2]}}</td>
           <td>{{ book[3]}}</td>
+          <td>{{ book[2]}}</td>
+          <td>{{ book[4]}}</td>
           <td><select class="decision">
             <option value ="pending">Pending</option>
             <option value="approve">Approve</option>
@@ -90,12 +92,13 @@
          var selectedOption = selectElement.value;
             var row = selectElement.closest('tr')
             var requestID = row.querySelector('td:first-child').textContent;
-            var userID = row.querySelector('td:nth-child(2)').textContent;
-            var bookID = row.querySelector('td:nth-child(3)').textContent;
+            var userID = row.querySelector('td:nth-child(3)').textContent;
+            var Title = row.querySelector('td:nth-child(2)').textContent;
+            var bookID = row.querySelector('td:nth-child(4)').textContent;
             if (selectedOption === "approve"){
-               approved.push([requestID, userID, bookID]);}
+               approved.push([requestID, userID, Title, bookID]);}
             else if (selectedOption === "deny"){
-               denied.push([requestID, userID, bookID])
+               denied.push([requestID, userID, Title, bookID])
             }
          });
        result.push(approved);
@@ -109,9 +112,6 @@
  <form action="/librarian">
     <button type="submit">Return</button>
  </form>
-
-
-
 
 
 </body>
