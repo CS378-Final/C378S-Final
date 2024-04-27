@@ -122,10 +122,6 @@ def search():
 def redirect_update():
     return render_template('update.html')
 
-@app.route('/book_availability')
-def redirect_availability():
-    return render_template('availability.html')
-
 @app.route('/overdue_books')
 def redirect_overdue():
     return render_template('overdue.html')
@@ -138,9 +134,6 @@ def redirect_borrowTrends():
 def sign_out():
     return render_template('main_page.html')
 
-@app.route('/borrowing_history')
-def redirect_borrowHistory():
-    return render_template('borrowhistory.html')
 
 @app.route('/requests')
 def redirect_requests():
@@ -165,18 +158,21 @@ def report_book_availability():
     return render_template('availability.html', results=results)
 
 
-@app.route('/transactionType', methods=['GET'])
+@app.route('/TransactionType', methods=['GET'])
 def report_requests():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     choice = request.args.get('output')
-    if choice == 'Return' or choice == 'Borrow':
-     cur.execute('SELECT * FROM Requests WHERE Transaction_Kind = ?', (choice,))
+    user_id = session.get('id')
+    if choice == 'pending':
+     cur.execute('SELECT * FROM Transactions WHERE User_ID = ? AND (Returned_Date = "" OR Returned_Date IS NULL)', (user_id))
+    elif choice == 'completed':
+     cur.execute('SELECT * FROM Transactions WHERE User_ID = ? AND Returned_Date IS TRUE', (user_id))
     else:
-     cur.execute('SELECT * FROM Requests')
+        cur.execute('SELECT * FROM Transactions WHERE User_ID = ?', (user_id))
     results = cur.fetchall()
     conn.close
-    return render_template('requests.html', results=results)
+    return render_template('borrowhistory.html', results=results)
 
 @app.route('/borrowTrends', methods = ['GET'])
 def report_book_trend():
@@ -229,6 +225,16 @@ def borrow_History():
     results = cur.fetchall()
     conn.close()
     return render_template('borrowhistory.html', results=results)
+
+@app.route('/availability', methods = ['GET'])
+def availability():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM Books')
+    results = cur.fetchall()
+    conn.close()
+    return render_template('availability.html', results=results)
+
 
 @app.route('/borrow', methods=['POST'])
 def borrow():

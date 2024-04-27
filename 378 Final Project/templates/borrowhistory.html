@@ -32,17 +32,24 @@
 
     <section>
     <h2>Generate a report to see all of your library transactions</h2>
-
-        <form action="/borrowHistory" method = "get">
-            <button id="show" type="submit">Generate</button>
-        </form>
+    <h3>Select Transaction Type:</h3>
+    <form action="/TransactionType" method = "get">
+        <select id="select">
+           <option value="all">All</option>
+           <option value ="pending">Pending</option>
+           <option value="completed">Completed</option>
+       </select>
+       <button type="submit" onclick="getValue()">Generate</button>
+       <p class = "output"></p>
+       <input type="hidden" id="transaction_type" name="output" value="">
+      </form>
     </section>
 
     <table>
         <tr>
             <th>Transaction ID</th>
             <th>Book ID</th>
-            <th>Student/Faculty ID</th>
+            <th>User ID</th>
             <th>Librarian ID</th>
             <th>Borrowed Date</th>
             <th>Returned Date</th>
@@ -62,7 +69,7 @@
                     {% if book[5] == '' or book[5] is none %}
                         <button type="submit">Return</button>
                     {% else %}
-                        <button disabled="disabled">Unavailable</button>
+                        <button disabled="disabled">Returned</button>
                     {% endif %}
                 </form>
             </td>
@@ -70,6 +77,15 @@
         {% endfor %}
     </table>    
 
+      
+    <script type="text/javascript">
+        function getValue(){
+           var selectElement = document.querySelector('#select');
+           var output = selectElement.value;
+           document.querySelector('.output').textContent= "Selected value:" + output;
+           document.getElementById('transaction_type').value = output;
+        }
+       </script>
 
   <form action="/previous">
     <button type="submit">Return</button>

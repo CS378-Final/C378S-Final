@@ -32,7 +32,7 @@
 
     <h2>Generate a list of books based on their availability</h2>
     <p>Select availability type:</p>
-
+   <section>
     <form action="/availabilityType" method = "get">
       <select id="select">
          <option value ="All">All</option>
@@ -41,17 +41,12 @@
      </select>
      <button type="submit" onclick="getValue()">Submit</button>
      <p class = "output"></p>
-     <input type="hidden" id="availability" name="output" value="">
+     <input type="hidden" id="availability_type" name="output" value="">
     </form>
+   </section>
 
-    <script type="text/javascript">
-      function getValue(){
-         var selectElement = document.querySelector('#select');
-         var output = selectElement.value;
-         document.querySelector('.output').textContent= "Selected value:" + output;
-         document.getElementById('availability').value = output;
-      }
-     </script>
+
+
 
 
 
@@ -78,9 +73,16 @@
       {% endfor %}
   </table>
 
+<script type="text/javascript">
+function getValue(){
+   var selectElement = document.querySelector('#select');
+   var output = selectElement.value;
+   document.querySelector('.output').textContent= "Selected value:" + output;
+   document.getElementById('availability_type').value = output;
+}
+</script>
 
-
-<form action="/librarian">
+<form action="/previous">
    <button type="submit">Return</button>
 </form>
 
