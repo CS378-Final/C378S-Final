@@ -287,7 +287,7 @@ def register_users():
 def approve_requests():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    librarian_id = request.form.get('Librarian_ID')
+    librarian_id = session.get('id')
     result_json = request.form.get('result')
     results = json.loads(result_json)
     approved = results[0]
