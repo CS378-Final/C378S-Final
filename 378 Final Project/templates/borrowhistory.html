@@ -58,8 +58,12 @@
             <td>{{ book[5] or NULL }}</td>
             <td>
                 <form action="/return" method="post">
-                    <input type="hidden" name="transaction_id" value="{{ book[0] }}">
-                    <button type="submit" {{ 'disabled' if book[5] }}>Return</button>
+                    <input type="hidden" name="transaction_id" id = "transaction_id" value="{{ book[0] }}">
+                    {% if book[5] == '' or book[5] is none %}
+                        <button type="submit">Return</button>
+                    {% else %}
+                        <button disabled="disabled">Unavailable</button>
+                    {% endif %}
                 </form>
             </td>
         </tr>
@@ -67,7 +71,7 @@
     </table>    
 
 
-  <form action="/user">
+  <form action="/previous">
     <button type="submit">Return</button>
     </form>
 
