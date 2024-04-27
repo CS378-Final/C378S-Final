@@ -48,20 +48,20 @@ def login():
 
     if role == 'user':
         print("Redirecting to user page.")
-        session['user_name'] = name
-        session['user_id'] = id
-        if ret[1] == "Faculty":
-            session['user_name'] = "Prof. " + name
+        session['name'] = name
+        session['id'] = id
+        # if ret[1] == "Faculty":
+        #     session['name'] = "Prof. " + name
         return redirect(url_for('user_page'))
     elif role == 'librarian':
         print("Redirecting to librarian page.")
-        session['librarian_name'] = name
-        session['librarian_id'] = id
+        session['name'] = name
+        session['id'] = id
         return redirect(url_for('librarian_page'))
     elif role == 'manager':
         print("Redirecting to manager page.")
-        session['manager_name'] = name
-        session['manager_id'] = id
+        session['name'] = name
+        session['id'] = id
         return redirect(url_for('manager_page'))
     else:
         print("User not found!")
@@ -71,20 +71,20 @@ def login():
 
 @app.route('/user')
 def user_page():
-    user_name = session.get('user_name', 'Default Name')
-    user_id = session.get('user_id', 'Default ID')
+    user_name = session.get('name', 'Default Name')
+    user_id = session.get('id', 'Default ID')
     return render_template('user_page.html', name=user_name, id=user_id)
 
 @app.route('/librarian')
 def librarian_page():
-    librarian_name = session.get('librarian_name', 'Default Name')
-    librarian_id = session.get('librarian_id', 'Default ID')
+    librarian_name = session.get('name', 'Default Name')
+    librarian_id = session.get('id', 'Default ID')
     return render_template('librarian_page.html', name=librarian_name, id=librarian_id)
 
 @app.route('/manager')
 def manager_page():
-    manager_name = session.get('manager_name', 'Default Name')
-    manager_id = session.get('manager_id', 'Default ID')
+    manager_name = session.get('name', 'Default Name')
+    manager_id = session.get('id', 'Default ID')
     return render_template('manager_page.html', name=manager_name, id=manager_id)
 @app.route('/add_book', methods=['POST'])
 def add_book():
@@ -224,7 +224,7 @@ def update_book():
 def borrow_History():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    user_id = session.get('user_id')
+    user_id = session.get('id')
     cur.execute('SELECT * FROM Transactions WHERE User_ID = ?', (user_id,))
     results = cur.fetchall()
     conn.close()
@@ -235,7 +235,7 @@ def borrow():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     bookID = request.form.get('BookID')
-    user_id = session.get('user_id')
+    user_id = session.get('id')
     cur.execute('INSERT INTO Requests (Book_ID, Transaction_Kind, User_ID) VALUES (?,?,?)', (bookID,"Borrow",user_id))
     conn.commit()
     conn.close()
@@ -246,7 +246,7 @@ def return_books():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     transaction_id = request.form['transaction_id']
-    session_user_id = session.get('user_id') 
+    session_user_id = session.get('id') 
 
     cur.execute('SELECT User_ID FROM Transactions WHERE Transaction_ID = ?', (transaction_id,))
     transaction_user_id = cur.fetchone()[0]
@@ -325,8 +325,8 @@ def report_users():
 
 @app.route('/previous', methods=['GET'])
 def redirect_to_previous():
-    user_id = session.get('user_id')
-    user_name = session.get('user_name')
+    user_id = session.get('id')
+    user_name = session.get('name')
     ret = get_user_role(user_name,user_id)
     role = ret[0]
     if role == 'user':
