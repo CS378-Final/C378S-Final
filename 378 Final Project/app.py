@@ -247,13 +247,14 @@ def return_books():
     cur = conn.cursor()
     query = request.form.get("query")
     id = request.form.get("User_ID")
-    cur.execute('SELECT * FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID WHERE User_ID = ? AND (Returned_Date = "") AND  (Title LIKE ? OR Authors LIKE ? OR Category LIKE ?) ', (id, f"%{query}%", f"%{query}%", f"%{query}%"))
+    cur.execute('SELECT * FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID WHERE User_ID = ? AND (Returned_Date = "" OR Returned_DATE IS NULL) AND  (Title LIKE ? OR Authors LIKE ? OR Category LIKE ?) ', (id, f"%{query}%", f"%{query}%", f"%{query}%"))
     book = cur.fetchone()
-    cur.execute('INSERT INTO Requests (Book_ID, Transaction_Kind, User_ID) VALUES (?,?,?)', (book[1],"Return",book[2]))
-    
+    cur.execute('UPDATE Transactions SET Returned_Date = ? WHERE Book_ID = ? AND User_ID = ? AND (Returned_Date = "" OR Returned_Date IS NULL)', (datetime.now().date(),book[1],id ))
+    cur.execute('UPDATE Books SET Availability = ? WHERE BookID = ?', ("Yes", book[1]))
     conn.commit()
     conn.close()
     return render_template('return.html')
+
 
 
 @app.route('/register', methods = ['POST'])
