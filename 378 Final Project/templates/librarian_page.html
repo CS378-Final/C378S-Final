@@ -14,6 +14,14 @@
     <p>Here, you can manage the library's books, including adding new books, updating information, and managing borrowings and returns.</p>
 
     <section>
+        <h2>Search Books</h2>
+        <form action="/search_books" method="get">
+            <input type="text" name="query" id = "query" placeholder="Title, Author, Category">
+            <button type="submit">Search</button>
+        </form>
+    </section>
+
+    <section>
         <h2>Add New Book</h2>
         <form action="/add_book" method="post">
             <input type="text" name="title" placeholder="Title" id = 'title' required>
@@ -45,12 +53,11 @@
         </form>
     
 
-
-        <form action="/overdue_books">
+        <form action="/overdue">
             <button type="submit">Overdue Books</button>
         </form>
 
-        <form action = "/borrowing_trends">
+        <form action = "/borrowTrends">
             <button type="submit">Borrowing Trends</button>
         </form>
 

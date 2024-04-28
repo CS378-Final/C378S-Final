@@ -29,30 +29,6 @@
 </head>
 <body>
     <h2>Approve a list of pending transaction requests </h2>
-    <p>Select type of Transaction:</p>
-
-    <form action="/transactionType" method = "get">
-      <select id="select">
-         <option value ="All">All</option>
-         <option value="Return">Returns</option>
-         <option value="Borrow">Borrow</option>
-     </select>
-     <button type="submit" onclick="getValue()">Generate</button>
-     <p class = "output"></p>
-     <input type="hidden" id="transaction_kind" name="output" value="">
-    </form>
-
-    <script type="text/javascript">
-      function getValue(){
-         var selectElement = document.querySelector('#select');
-         var output = selectElement.value;
-         document.querySelector('.output').textContent= "Selected value:" + output;
-         document.getElementById('transaction_kind').value = output;
-      }
-     </script>
-
-
-
    <form action="/decision" method="post">
 
   <table id="table">
@@ -66,9 +42,9 @@
       {% for book in results %}
       <tr>
           <td>{{ book[0]}}</td>
-          <td>{{ book[3]}}</td>
           <td>{{ book[2]}}</td>
-          <td>{{ book[4]}}</td>
+          <td>{{ book[1]}}</td>
+          <td>{{ book[3]}}</td>
           <td><select class="decision">
             <option value ="pending">Pending</option>
             <option value="approve">Approve</option>
@@ -92,8 +68,8 @@
          var selectedOption = selectElement.value;
             var row = selectElement.closest('tr')
             var requestID = row.querySelector('td:first-child').textContent;
-            var userID = row.querySelector('td:nth-child(3)').textContent;
-            var Title = row.querySelector('td:nth-child(2)').textContent;
+            var userID = row.querySelector('td:nth-child(2)').textContent;
+            var Title = row.querySelector('td:nth-child(3)').textContent;
             var bookID = row.querySelector('td:nth-child(4)').textContent;
             if (selectedOption === "approve"){
                approved.push([requestID, userID, Title, bookID]);}
@@ -109,7 +85,7 @@
    </script>
 
  <br>
- <form action="/librarian">
+ <form action="/previous">
     <button type="submit">Return</button>
  </form>
 

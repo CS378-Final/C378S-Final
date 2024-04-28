@@ -86,6 +86,7 @@ def manager_page():
     manager_name = session.get('name', 'Default Name')
     manager_id = session.get('id', 'Default ID')
     return render_template('manager_page.html', name=manager_name, id=manager_id)
+
 @app.route('/add_book', methods=['POST'])
 def add_book():
     conn = sqlite3.connect(DATABASE)
@@ -122,13 +123,6 @@ def search():
 def redirect_update():
     return render_template('update.html')
 
-@app.route('/overdue_books')
-def redirect_overdue():
-    return render_template('overdue.html')
-
-@app.route('/borrowing_trends')
-def redirect_borrowTrends():
-    return render_template('borrowTrends.html')
 
 @app.route('/sign_out')
 def sign_out():
@@ -136,12 +130,16 @@ def sign_out():
 
 
 @app.route('/requests')
-def redirect_requests():
-    return render_template('requests.html')
+def requests():
+    conn = sqlite3.connect(DATABASE)
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM Requests')
+    results = cur.fetchall()
+    conn.close()
+    return render_template('requests.html', results=results)
 
-@app.route("/user_rep")
-def redirect_request():
-    return render_template('users_report.html')
+
+
 
 
 @app.route('/availabilityType', methods=['GET'])
@@ -174,6 +172,8 @@ def report_requests():
     conn.close
     return render_template('borrowhistory.html', results=results)
 
+
+
 @app.route('/borrowTrends', methods = ['GET'])
 def report_book_trend():
     conn = sqlite3.connect(DATABASE)
@@ -187,7 +187,7 @@ def report_overdue():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     today = datetime.now()
-    cur.execute('SELECT * FROM Transactions WHERE Returned_Date IS NULL AND Borrowed_Date < ?', (today - timedelta(days=30),)) 
+    cur.execute('SELECT * FROM Transactions WHERE (Returned_Date IS NULL OR Returned_Date ="") AND Borrowed_Date < ?', (today - timedelta(days=30),)) 
     results = cur.fetchall()
     return render_template('overdue.html', results=results)
 
@@ -242,10 +242,11 @@ def borrow():
     cur = conn.cursor()
     bookID = request.form.get('BookID')
     user_id = session.get('id')
-    cur.execute('INSERT INTO Requests (Book_ID, Transaction_Kind, User_ID) VALUES (?,?,?)', (bookID,"Borrow",user_id))
+    title = request.form.get('Title')
+    cur.execute('INSERT INTO Requests (Book_ID, Book_Title, User_ID) VALUES (?,?,?)', (bookID,title,user_id))
     conn.commit()
     conn.close()
-    return render_template('user_page.html')
+    return redirect_to_previous()
 
 @app.route('/return', methods=['POST'])
 def return_books():
@@ -268,25 +269,26 @@ def register_users():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
     name = request.form.get("name")
+    id = request.form.get("university_id")
     email = request.form.get("email")
     department = request.form.get("department")
     role = request.form.get("role")
     if role == "Student":
-        cur.execute("INSERT INTO Users (Name, Role)  VALUES(?,?)", (name, role))
-        cur.execute("INSERT INTO Students (Name, Email, Department) VALUES(?,?, ?)", (name, email, department))
+        cur.execute("INSERT INTO Users (Name, Role, User_ID )  VALUES(?,?, ?)", (name, role, id))
+        cur.execute("INSERT INTO Students (Name, Email, Department, Student_ID) VALUES(?,?, ?, ?)", (name, email, department, id))
     elif role == "Faculty":
-        cur.execute("INSERT INTO Users (Name, Role) VALUES(?,?)", (name, role))
-        cur.execute("INSERT INTO Faculty (Name, Email, Department) VALUES(?,?, ?)", (name, email, department))
+        cur.execute("INSERT INTO Users (Name, Role, User_ID) VALUES(?,?,?)", (name, role, id))
+        cur.execute("INSERT INTO Faculty (Name, Email, Department,Faculty_ID ) VALUES(?,?, ?, ?)", (name, email, department, id))
     elif role == "Librarian":
-        cur.execute("INSERT INTO Librarians (Name, Email) VALUES(?,?)", (name, email))
+        cur.execute("INSERT INTO Librarians (Name, Email, Librarian_ID) VALUES(?,?,?)", (name, email, id))
     elif role == "Manager":
-        cur.execute("INSERT INTO Managers (Name, Email) VALUES(?,?)", (name, email))
+        cur.execute("INSERT INTO Managers (Name, Email, Manager_ID) VALUES(?,?, ?)", (name, email, id))
     else:
         print("Not a valid role!")
+        return render_template('manager_page.html',  error="Invalid Role! Must be Faculty, Librarian, Manager or Student ")
     conn.commit()
     conn.close()
-    return render_template('manager_page.html',  error="Invalid Role! Must be Faculty, Librarian, Manager or Student ")
-
+    return manager_page()
 
 
 @app.route('/decision', methods = ['POST'])
@@ -300,35 +302,19 @@ def approve_requests():
     denied = results[1]
 
     for req in denied:
-        request_id, user_id, book_id = req
-        cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND User_ID = ? AND Book_ID = ?', (request_id, user_id, book_id))
+        request_id, user_id, title, book_id = req
+        cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND Book_Title = ? AND User_ID = ? AND Book_ID = ?', (request_id, title, user_id, book_id))
     
     for req in approved:
-        request_id, user_id, book_id = req
+        request_id, user_id, title, book_id = req
         cur.execute('INSERT INTO Transactions (Book_ID, User_ID, Librarian_ID, Borrowed_Date) VALUES(?, ?, ?, ?)', (book_id, user_id, librarian_id, datetime.now().date()) )
-        cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND User_ID = ? AND Book_ID = ?', (request_id, user_id, book_id))
+        cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND Book_Title = ? AND User_ID = ? AND Book_ID = ?', (request_id, title, user_id, book_id))
 
     
     conn.commit()
     conn.close()
-    return render_template('requests.html')
+    return requests()
         
-    
-#To check if register is working 
-@app.route('/user_report', methods=['GET'])
-def report_users():
-    conn = sqlite3.connect(DATABASE)
-    cur = conn.cursor()
-    choice = request.args.get('output')
-    if choice == 'Faculty':
-     cur.execute('SELECT * FROM Users WHERE Role = ?', ('Faculty',))
-    elif choice == 'Student':
-        cur.execute('SELECT * FROM Users WHERE Role = ?', ('Student',))
-    else:
-        cur.execute('SELECT * FROM Users' )
-    results = cur.fetchall()
-    conn.close
-    return render_template('users_report.html', results=results)
 
 @app.route('/previous', methods=['GET'])
 def redirect_to_previous():

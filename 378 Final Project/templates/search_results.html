@@ -52,6 +52,7 @@
             <td>
                 <form action="/borrow" method="post">
                     <input type="hidden" name="BookID" value="{{ book[0] }}">
+                    <input type="hidden" name="Title" value="{{ book [1]}}">
                     {% if book[6] == 'Yes' %}
                         <button type="submit">Borrow</button>
                     {% else %}
@@ -63,7 +64,7 @@
         {% endfor %}
     </table>
 
-   <form action="/user">
+   <form action="/previous">
     <button type="submit">Return</button>
     </form>
 
