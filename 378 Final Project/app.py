@@ -178,7 +178,7 @@ def report_requests():
 def report_book_trend():
     conn = sqlite3.connect(DATABASE)
     cur = conn.cursor()
-    cur.execute('SELECT Book_ID,Title, COUNT(Book_ID) AS Count FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID  GROUP BY Book_ID  ORDER BY Count DESC LIMIT 10')
+    cur.execute('SELECT Transactions.Book_ID, Books.Title, COUNT(Transactions.Book_ID) AS Count FROM Transactions INNER JOIN Books ON Books.BookID = Transactions.Book_ID GROUP BY Transactions.Book_ID ORDER BY Count DESC LIMIT 10')
     results = cur.fetchall()
     return render_template('borrowTrends.html', results = results)
 
