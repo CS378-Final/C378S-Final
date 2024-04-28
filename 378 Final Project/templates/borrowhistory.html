@@ -48,9 +48,8 @@
     <table>
         <tr>
             <th>Transaction ID</th>
+            <th>Tile</th>
             <th>Book ID</th>
-            <th>User ID</th>
-            <th>Librarian ID</th>
             <th>Borrowed Date</th>
             <th>Returned Date</th>
             <th>Return</th>
@@ -58,11 +57,10 @@
         {% for book in results %}
         <tr>
             <td>{{ book[0] }}</td>
-            <td>{{ book[1] }}</td>
             <td>{{ book[2] }}</td>
-            <td>{{ book[3] }}</td>
-            <td>{{ book[4] }}</td>
-            <td>{{ book[5] or NULL }}</td>
+            <td>{{ book[1] }}</td>
+            <td>{{ book[5] }}</td>
+            <td>{{ book[6] or NULL }}</td>
             <td>
                 <form action="/return" method="post">
                     <input type="hidden" name="transaction_id" id = "transaction_id" value="{{ book[0] }}">
