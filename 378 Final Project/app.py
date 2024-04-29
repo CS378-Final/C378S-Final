@@ -101,7 +101,7 @@ def add_book():
     # Adding a book
     cur.execute('INSERT INTO Books (Title, Authors, ISBN, PublicationYear, Category, Availability) VALUES  (?, ?, ?, ?, ?, ?)', (title, author, isbn, year, category, 'Yes'))
     conn.commit()
-    return redirect(url_for('librarian_page'))
+    return redirect_to_previous()
 
 
 @app.route('/search_books', methods = ['GET'])
@@ -119,9 +119,9 @@ def search():
 
 
 #Routes to the different pages
-@app.route('/update_book')
-def redirect_update():
-    return render_template('update.html')
+# @app.route('/update_book')
+# def redirect_update():
+#     return render_template('update.html')
 
 
 @app.route('/sign_out')
@@ -214,7 +214,7 @@ def update_book():
     cur.execute(command, update_values)
     conn.commit()
     conn.close()
-    return render_template('update.html')
+    return redirect_to_previous()
 
 @app.route('/borrowHistory', methods = ['GET'])
 def borrow_History():
