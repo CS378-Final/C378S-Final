@@ -31,6 +31,23 @@ body {
     background-color: #c0392b; /* Darker shade of red for hover state */
 }
 
+button {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 2px 2px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
 /* Style the main heading */
 h1 {
     color: #333;

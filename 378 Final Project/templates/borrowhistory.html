@@ -64,7 +64,7 @@
             <td>
                 <form action="/return" method="post">
                     <input type="hidden" name="transaction_id" id = "transaction_id" value="{{ book[0] }}">
-                    {% if book[5] == '' or book[5] is none %}
+                    {% if book[6] == '' or book[6] is none %}
                         <button type="submit">Return</button>
                     {% else %}
                         <button disabled="disabled">Returned</button>

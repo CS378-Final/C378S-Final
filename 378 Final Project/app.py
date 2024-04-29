@@ -307,7 +307,7 @@ def approve_requests():
     
     for req in approved:
         request_id, user_id, title, book_id = req
-        cur.execute('INSERT INTO Transactions (Book_ID, User_ID, Librarian_ID, Borrowed_Date) VALUES(?, ?, ?, ?)', (book_id, user_id, librarian_id, datetime.now().date()) )
+        cur.execute('INSERT INTO Transactions (Book_ID, Title, User_ID, Librarian_ID, Borrowed_Date) VALUES(?, ?, ?, ?, ?)', (book_id, title, user_id, librarian_id, datetime.now().date()) )
         cur.execute('DELETE FROM Requests WHERE Request_ID = ? AND Book_Title = ? AND User_ID = ? AND Book_ID = ?', (request_id, title, user_id, book_id))
 
     
